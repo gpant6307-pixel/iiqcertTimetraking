@@ -5,736 +5,207 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UAR Performance Analytics</title>
   <style>
-    :root {
-      --navy: #102c78;
-      --navy-dark: #0b245f;
-      --page-bg: #edf3fc;
-      --surface: #ffffff;
-      --surface-soft: #f6f9ff;
-      --border: #cfdbef;
-      --text: #24324b;
-      --muted: #657894;
-      --accent: #3c63dd;
-      --accent-soft: #dfe9fb;
-      --shadow: 0 10px 32px rgba(34, 59, 111, 0.08);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Tahoma, sans-serif;
-      color: var(--text);
-      background: var(--page-bg);
-    }
-
-    button,
-    input,
-    select {
-      font: inherit;
-    }
-
-    .top-brand {
-      height: 73px;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      border-top: 1px solid #294f22;
-    }
-
-    .brand-mark {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--navy);
-      font-size: 21px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-    }
-
-    .brand-ring {
-      width: 21px;
-      height: 21px;
-      border: 4px solid var(--navy);
-      border-radius: 50%;
-      position: relative;
-    }
-
-    .brand-ring::after {
-      content: "";
-      position: absolute;
-      left: 5px;
-      top: 3px;
-      width: 5px;
-      height: 10px;
-      border-right: 3px solid var(--navy);
-      border-bottom: 3px solid var(--navy);
-      transform: rotate(40deg);
-    }
-
-    .iiq-nav {
-      height: 74px;
-      background: var(--navy);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 18px;
-      box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08);
-    }
-
-    .nav-left,
-    .nav-right,
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
-
-    .hamburger {
-      font-size: 28px;
-      line-height: 1;
-      margin-right: 18px;
-    }
-
-    .nav-links span,
-    .nav-right span {
-      font-size: 16px;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .nav-right .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      background: #f04d23;
-      color: #fff;
-      font-size: 15px;
-      font-weight: 700;
-      margin-left: -10px;
-    }
-
-    .app-shell {
-      min-height: calc(100vh - 147px);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.16));
-      padding: 22px 0 28px;
-    }
-
-    .container {
-      width: min(94%, 1910px);
-      margin: 0 auto;
-    }
-
-    .page {
-      display: none;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    .page-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 18px;
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 48px;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      font-weight: 400;
-      color: #25334c;
-    }
-
-    .subtitle {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: 20px;
-      line-height: 1.35;
-    }
-
-    .toolbar-right {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding-top: 4px;
-      white-space: nowrap;
-    }
-
-    .pill-btn,
-    .primary-btn,
-    .secondary-btn,
-    .pager-btn {
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: #fff;
-      color: #6d6d6d;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(34, 59, 111, 0.06);
-    }
-
-    .pill-btn {
-      height: 52px;
-      padding: 0 28px;
-      font-size: 17px;
-    }
-
-    .theme-wrap {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .theme-switch {
-      width: 60px;
-      height: 34px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: #f7fbff;
-      position: relative;
-      cursor: pointer;
-    }
-
-    .theme-switch::after {
-      content: "";
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: #fff;
-      border: 1px solid var(--border);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-    }
-
-    .canvas {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      padding: 23px;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-    }
-
-    .metric-card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 16px 20px 18px;
-      cursor: pointer;
-      min-height: 338px;
-    }
-
-    .metric-card:hover {
-      box-shadow: 0 8px 20px rgba(47, 84, 158, 0.08);
-    }
-
-    .metric-card h3 {
-      margin: 0;
-      font-size: 24px;
-      line-height: 1.2;
-      font-weight: 400;
-      color: #2c3952;
-    }
-
-    .metric-copy {
-      margin: 10px 0 14px;
-      color: var(--muted);
-      font-size: 17px;
-      line-height: 1.4;
-      min-height: 48px;
-    }
-
-    .bar-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .bar-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(120px, 0.75fr) 78px;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .bar-label {
-      font-size: 18px;
-      line-height: 1.25;
-      color: #2f3b53;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .bar-track {
-      height: 18px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      border: 1px solid #d4dff4;
-      overflow: hidden;
-    }
-
-    .bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #3d67dd, #6b95f5);
-    }
-
-    .bar-value {
-      font-size: 18px;
-      font-weight: 600;
-      color: #2f3b53;
-      text-align: right;
-    }
-
-    .back-link {
-      border: none;
-      background: none;
-      padding: 0;
-      margin: 0 0 8px;
-      color: var(--accent);
-      font-size: 17px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .detail-header h1 {
-      font-size: 40px;
-    }
-
-    .filters {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto auto;
-      gap: 14px;
-      align-items: end;
-      margin-bottom: 18px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .field label {
-      color: var(--muted);
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-    }
-
-    .field select,
-    .field input {
-      height: 60px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: #fff;
-      color: #2c3952;
-      padding: 0 18px;
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .primary-btn,
-    .secondary-btn {
-      height: 54px;
-      padding: 0 22px;
-      font-size: 18px;
-    }
-
-    .primary-btn {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    .table-meta {
-      color: var(--muted);
-      font-size: 19px;
-      margin: 10px 0 14px;
-    }
-
-    .table-shell {
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    thead th {
-      background: var(--surface-soft);
-      color: var(--muted);
-      font-size: 17px;
-      font-weight: 700;
-      text-align: left;
-      padding: 14px 14px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    tbody td {
-      font-size: 18px;
-      color: #2f3b53;
-      padding: 14px 14px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .pager {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .pager-btn {
-      height: 58px;
-      min-width: 122px;
-      font-size: 18px;
-      justify-self: start;
-    }
-
-    .pager-btn.next {
-      justify-self: end;
-    }
-
-    .page-count {
-      color: var(--muted);
-      font-size: 18px;
-      font-weight: 500;
-    }
-
-    @media (max-width: 1200px) {
-      .cards-grid,
-      .filters {
-        grid-template-columns: 1fr;
-      }
-
-      .page-top,
-      .toolbar-right,
-      .nav-links,
-      .nav-right,
-      .iiq-nav {
-        flex-wrap: wrap;
-      }
-    }
-
-    @media (max-width: 780px) {
-      h1,
-      .detail-header h1 {
-        font-size: 34px;
-      }
-
-      .subtitle,
-      .metric-copy,
-      .bar-label,
-      .bar-value,
-      tbody td,
-      .table-meta {
-        font-size: 16px;
-      }
-
-      .container {
-        width: calc(100% - 18px);
-      }
-
-      .canvas {
-        padding: 14px;
-      }
-
-      .bar-row {
-        grid-template-columns: 1fr;
-      }
-    }
+    :root{--navy:#102c78;--page:#edf3fc;--surface:#fff;--surface-soft:#f5f8fe;--border:#cfdbef;--text:#25334c;--muted:#667a98;--accent:#3d61dd;--accent-soft:#dfe8fb;--shadow:0 10px 32px rgba(34,59,111,.08)}
+    *{box-sizing:border-box} body{margin:0;font-family:"Segoe UI",Tahoma,sans-serif;color:var(--text);background:var(--page)} button,input,select{font:inherit}
+    .top-brand{height:74px;background:#fff;display:flex;align-items:center;padding:0 20px;border-top:1px solid #294f22}
+    .brand-mark{display:inline-flex;align-items:center;gap:8px;color:var(--navy);font-size:21px;font-weight:700;letter-spacing:-.03em}
+    .brand-ring{width:21px;height:21px;border:4px solid var(--navy);border-radius:50%;position:relative}
+    .brand-ring:after{content:"";position:absolute;left:5px;top:3px;width:5px;height:10px;border-right:3px solid var(--navy);border-bottom:3px solid var(--navy);transform:rotate(40deg)}
+    .iiq-nav{height:74px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+    .nav-left,.nav-links,.nav-right{display:flex;align-items:center;gap:18px}.hamburger{font-size:28px;line-height:1;margin-right:18px}.nav-links span,.nav-right span{font-size:16px;white-space:nowrap}
+    .nav-right .badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;background:#f04d23;color:#fff;font-size:15px;font-weight:700;margin-left:-10px}
+    .app-shell{min-height:calc(100vh - 148px);padding:22px 0 28px;background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.16))}
+    .container{width:min(94%,1910px);margin:0 auto}.page{display:none}.page.active{display:block}
+    .page-top{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:12px}
+    h1{margin:0;font-size:46px;line-height:1.1;letter-spacing:-.03em;font-weight:600;color:#25334c}.subtitle{margin:8px 0 0;color:var(--muted);font-size:20px;line-height:1.35}
+    .signed-in{margin-top:8px;color:var(--muted);font-size:18px;font-weight:600}
+    .toolbar-right{display:flex;align-items:center;gap:14px;padding-top:4px;white-space:nowrap}.theme-wrap{display:inline-flex;align-items:center;gap:10px;color:var(--muted);font-size:18px;font-weight:600}
+    .theme-switch{width:60px;height:34px;border-radius:999px;border:1px solid var(--border);background:#f7fbff;position:relative}.theme-switch:after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;border:1px solid var(--border)}
+    .pill-btn,.primary-btn,.secondary-btn,.pager-btn{height:52px;border-radius:18px;border:1px solid var(--border);background:#fff;color:#6d6d6d;font-weight:600;cursor:pointer;box-shadow:0 2px 6px rgba(34,59,111,.06);padding:0 26px}
+    .primary-btn{background:var(--accent);border-color:var(--accent);color:#fff}
+    .canvas{background:var(--surface);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);padding:22px}
+    .cards-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .metric-card{border:1px solid var(--border);border-radius:20px;padding:16px 20px 18px;background:#fff;min-height:316px;cursor:pointer}
+    .metric-card h3{margin:0;font-size:24px;font-weight:400}.metric-copy{margin:10px 0 14px;color:var(--muted);font-size:17px;line-height:1.4;min-height:48px}
+    .bar-list{display:grid;gap:10px}.bar-row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(120px,.75fr) 90px;gap:12px;align-items:center}
+    .bar-label{font-size:18px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bar-track{height:16px;border-radius:999px;background:var(--accent-soft);border:1px solid #d4dff4;overflow:hidden}.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#3d67dd,#6b95f5)}.bar-value{font-size:18px;font-weight:600;text-align:right}
+    .back-link{border:none;background:none;padding:0;margin:0 0 8px;color:var(--accent);font-size:17px;font-weight:600;cursor:pointer}.detail-title{font-size:40px}
+    .filters{display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:14px;align-items:end;margin-bottom:18px}.field{display:flex;flex-direction:column;gap:8px}.field label{color:var(--muted);font-size:18px;font-weight:700}
+    .field input,.field select{height:58px;border:1px solid var(--border);border-radius:16px;background:#fff;color:#2c3952;padding:0 18px;font-size:18px;font-weight:600}
+    .table-meta{color:var(--muted);font-size:19px;margin:10px 0 14px}.table-shell{border:1px solid var(--border);border-radius:20px;overflow:hidden;background:#fff}.table-scroll{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:900px} thead th{background:var(--surface-soft);color:var(--muted);font-size:17px;font-weight:700;text-align:left;padding:14px;border-bottom:1px solid var(--border);white-space:nowrap}
+    tbody td{font-size:18px;color:#2f3b53;padding:14px;border-bottom:1px solid var(--border);vertical-align:top}
+    .pager{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-top:16px}.pager-btn{min-width:122px}.pager-btn.next{justify-self:end}.page-count{color:var(--muted);font-size:18px;font-weight:500}
+    .tabs{display:inline-flex;border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:18px}.tab{height:60px;min-width:176px;border:none;background:transparent;color:var(--muted);font-size:18px;font-weight:700;cursor:pointer}.tab.active{background:#fff;color:#2f3b53;box-shadow:inset 0 0 0 1px rgba(0,0,0,.03)}
+    .search-pane{display:none}.search-pane.active{display:block}.search-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:18px}
+    .dropdown-box{border:1px solid var(--border);border-radius:18px;background:#fff;overflow:hidden;margin-bottom:14px}.dropdown-toggle{height:58px;display:flex;align-items:center;padding:0 18px;font-size:18px;font-weight:600;color:#2f3b53}
+    .dropdown-panel{border-top:1px solid var(--border);padding:10px;background:#fff;max-height:240px;overflow-y:auto}.search-input{width:100%;height:58px;border:2px solid #b8caf2;border-radius:16px;padding:0 18px;font-size:18px;font-weight:600;margin-bottom:10px}
+    .check-row{display:flex;align-items:center;gap:12px;padding:10px 8px;font-size:18px;font-weight:600;color:#2f3b53}.check-row input{width:24px;height:24px}
+    .search-row{display:grid;grid-template-columns:1fr auto;gap:16px;margin-bottom:18px}.actions{display:flex;justify-content:flex-end;gap:12px;margin-bottom:18px}.helper{border:1px solid #aac2fb;background:#dfe6f9;color:var(--muted);border-radius:16px;padding:12px 14px;font-size:17px}
+    .results-subtitle{margin:8px 0 0;color:var(--muted);font-size:18px}.sort{color:#99a7bf;margin-left:6px}.footer{margin-top:24px;background:var(--navy);color:#fff;text-align:center;font-size:15px;padding:8px 12px}
+    @media (max-width:1200px){.cards-grid,.filters,.search-grid,.search-row{grid-template-columns:1fr}.page-top,.toolbar-right,.iiq-nav,.nav-links,.nav-right{flex-wrap:wrap}}
+    @media (max-width:780px){h1,.detail-title{font-size:34px}.subtitle,.bar-label,.bar-value,tbody td{font-size:16px}.container{width:calc(100% - 18px)}.canvas{padding:14px}.bar-row{grid-template-columns:1fr}.tabs{width:100%;flex-wrap:wrap}.tab{flex:1 1 100%}}
   </style>
 </head>
 <body>
-  <header class="top-brand">
-    <div class="brand-mark">
-      <span class="brand-ring"></span>
-      <span>SailPoint</span>
-    </div>
-  </header>
-
+  <header class="top-brand"><div class="brand-mark"><span class="brand-ring"></span><span>SailPoint</span></div></header>
   <nav class="iiq-nav">
-    <div class="nav-left">
-      <span class="hamburger">☰</span>
-      <div class="nav-links">
-        <span>Home</span>
-        <span>My Work ▼</span>
-        <span>Identities ▼</span>
-        <span>Applications ▼</span>
-        <span>Intelligence ▼</span>
-        <span>Setup ▼</span>
-      </div>
-    </div>
-    <div class="nav-right">
-      <span>⚙</span>
-      <span>❔</span>
-      <span>🔔</span>
-      <span class="badge">3</span>
-      <span>spadmin ▼</span>
-    </div>
+    <div class="nav-left"><span class="hamburger">☰</span><div class="nav-links"><span>Home</span><span>My Work ▼</span><span>Identities ▼</span><span>Applications ▼</span><span>Intelligence ▼</span><span>Setup ▼</span></div></div>
+    <div class="nav-right"><span>⚙ ▼</span><span>❔</span><span>🔔</span><span class="badge">3</span><span>spadmin ▼</span></div>
   </nav>
-
   <main class="app-shell">
     <div class="container">
-      <section id="landingPage" class="page active">
+      <section id="leadershipPage" class="page active">
         <div class="page-top">
-          <div>
-            <h1>Leadership Dashboard</h1>
-            <p class="subtitle">Last 6 months by default. Each card shows top 10 rows; click any card for full paginated table with date range and download.</p>
-          </div>
-          <div class="toolbar-right">
-            <button class="pill-btn" type="button">Operational Dashboard</button>
-            <div class="theme-wrap">
-              <span>Light</span>
-              <button class="theme-switch" type="button" aria-label="Theme preview"></button>
-            </div>
-          </div>
+          <div><h1>Leadership Dashboard</h1><p class="subtitle">Last 6 months by default. Each card shows top 10 rows; click any card for full paginated table with date range and download.</p></div>
+          <div class="toolbar-right"><button class="pill-btn" id="goOperational" type="button">Operational Dashboard</button><div class="theme-wrap"><span>Light</span><button class="theme-switch" type="button" aria-label="Theme preview"></button></div></div>
         </div>
+        <div class="canvas"><div class="cards-grid" id="cardsGrid"></div></div>
+      </section>
 
+      <section id="leadershipDetailPage" class="page">
+        <div class="page-top">
+          <div><button class="back-link" id="backToLeadership" type="button">← Back to Leadership</button><h1 class="detail-title" id="detailTitle">Metric Name</h1><p class="subtitle">Date range defaults to last 6 months. Use pagination to navigate all rows.</p></div>
+          <div class="toolbar-right"><div class="theme-wrap"><span>Light</span><button class="theme-switch" type="button" aria-label="Theme preview"></button></div></div>
+        </div>
         <div class="canvas">
-          <div class="cards-grid" id="cardsGrid"></div>
+          <div class="filters">
+            <div class="field"><label for="metricSelect">METRIC</label><select id="metricSelect"></select></div>
+            <div class="field"><label for="fromDate">FROM DATE</label><input id="fromDate" type="text" value="01-10-2025"></div>
+            <div class="field"><label for="toDate">TO DATE</label><input id="toDate" type="text" value="30-03-2026"></div>
+            <button class="primary-btn" id="applyMetric" type="button">Apply</button>
+            <button class="secondary-btn" type="button">Download CSV</button>
+          </div>
+          <div class="table-meta" id="detailMeta">Showing 1-7 of 7 rows</div>
+          <div class="table-shell"><div class="table-scroll"><table><thead id="detailHead"></thead><tbody id="detailBody"></tbody></table></div></div>
+          <div class="pager"><button class="pager-btn" type="button">Previous</button><div class="page-count">Page 1 of 1</div><button class="pager-btn next" type="button">Next</button></div>
         </div>
       </section>
 
-      <section id="detailPage" class="page">
-        <div class="page-top detail-header">
-          <div>
-            <button class="back-link" id="backToLanding" type="button">← Back to Leadership</button>
-            <h1 id="detailTitle">Metric Name</h1>
-            <p class="subtitle">Date range defaults to last 6 months. Use pagination to navigate all rows.</p>
-          </div>
-          <div class="toolbar-right">
-            <div class="theme-wrap">
-              <span>Light</span>
-              <button class="theme-switch" type="button" aria-label="Theme preview"></button>
-            </div>
-          </div>
+      <section id="operationalSearchPage" class="page">
+        <div class="page-top">
+          <div><h1>Campaign Time Analytics</h1><p class="subtitle">Analyze manager-level certification behavior with drill-down to user and session details.</p><div class="signed-in">Signed in as spadmin | Access: Admin</div></div>
+          <div class="toolbar-right"><button class="pill-btn" id="goLeadership" type="button">Leadership Dashboard</button><div class="theme-wrap"><span>Light</span><button class="theme-switch" type="button" aria-label="Theme preview"></button></div></div>
         </div>
-
         <div class="canvas">
-          <div class="filters">
-            <div class="field">
-              <label for="metricSelect">METRIC</label>
-              <select id="metricSelect"></select>
-            </div>
-            <div class="field">
-              <label for="fromDate">FROM DATE</label>
-              <input id="fromDate" type="text" value="01-10-2025">
-            </div>
-            <div class="field">
-              <label for="toDate">TO DATE</label>
-              <input id="toDate" type="text" value="30-03-2026">
-            </div>
-            <button class="primary-btn" id="applyBtn" type="button">Apply</button>
-            <button class="secondary-btn" type="button">Download CSV</button>
-          </div>
+          <div class="tabs"><button class="tab active" data-tab="created" type="button">By Created Date</button><button class="tab" data-tab="campaign" type="button">By Campaign Name</button><button class="tab" data-tab="certifier" type="button">By Certifier</button></div>
+          <div id="tab-created" class="search-pane active"></div>
+          <div id="tab-campaign" class="search-pane"></div>
+          <div id="tab-certifier" class="search-pane"></div>
+          <div class="actions"><button class="secondary-btn" type="button">Reset</button><button class="primary-btn" id="applyFilters" type="button">Apply Filters</button></div>
+          <div class="helper">Admin mode: you can search any certifier by name or email.</div>
+        </div>
+      </section>
 
-          <div class="table-meta" id="tableMeta">Showing 1-7 of 7 rows</div>
-
-          <div class="table-shell">
-            <table>
-              <thead id="detailHead"></thead>
-              <tbody id="detailBody"></tbody>
-            </table>
-          </div>
-
-          <div class="pager">
-            <button class="pager-btn" type="button">Previous</button>
-            <div class="page-count">Page 1 of 1</div>
-            <button class="pager-btn next" type="button">Next</button>
-          </div>
+      <section id="campaignResultsPage" class="page">
+        <div class="page-top">
+          <div><button class="back-link" id="backToSearch" type="button">← Back to Search</button><h1 class="detail-title">Campaign Results</h1><p class="results-subtitle">6 campaign(s)</p></div>
+          <div class="toolbar-right"><div class="theme-wrap"><span>Light</span><button class="theme-switch" type="button" aria-label="Theme preview"></button></div></div>
+        </div>
+        <div class="canvas">
+          <div class="table-shell"><div class="table-scroll"><table id="resultsTable"></table></div></div>
+          <div class="pager"><button class="pager-btn" type="button">Previous</button><div class="page-count">Page 1 of 1</div><button class="pager-btn next" type="button">Next</button></div>
         </div>
       </section>
     </div>
+    <div class="footer">© Copyright 2021 SailPoint Technologies - All rights reserved.</div>
   </main>
 
   <script>
-    const metrics = [
-      {
-        key: "campaign_efficiency",
-        title: "Campaign Efficiency Scoreboard",
-        description: "Last 6 months: campaigns with highest average time to take decisions. Campaigns may be active or closed. Click to open full table.",
-        cardLabelKey: "CampaignName",
-        cardValueKey: "AvgActiveSecPerItem",
-        rows: [
-          { CampaignName: "Real Demo one [25/3/26 8:05:32 PM IST]", TotalActiveSeconds: 26, CompletedItems: 1, AvgActiveSecPerItem: 26.0 },
-          { CampaignName: "Test summary one [24/3/26 6:25:36 PM IST]", TotalActiveSeconds: 49, CompletedItems: 2, AvgActiveSecPerItem: 24.5 },
-          { CampaignName: "Targeted Certification [24/3/26 6:07:09 PM IST]", TotalActiveSeconds: 10, CompletedItems: 1, AvgActiveSecPerItem: 10.0 },
-          { CampaignName: "Targeted Certification [21/3/26 6:07:19 PM IST]", TotalActiveSeconds: 34, CompletedItems: 5, AvgActiveSecPerItem: 6.8 },
-          { CampaignName: "Targeted Certification [25/12/25 11:47:06 PM IST]", TotalActiveSeconds: 20, CompletedItems: 5, AvgActiveSecPerItem: 4.0 },
-          { CampaignName: "Application Owner Certification [22/3/26 1:07:29 AM IST]", TotalActiveSeconds: 126, CompletedItems: 51, AvgActiveSecPerItem: 2.47 },
-          { CampaignName: "Application Owner Certification [21/3/26 11:53:46 PM IST]", TotalActiveSeconds: 61, CompletedItems: 51, AvgActiveSecPerItem: 1.2 }
-        ],
-        columns: [
-          ["CAMPAIGNNAME", "CampaignName"],
-          ["TOTALACTIVESECONDS", "TotalActiveSeconds"],
-          ["COMPLETEDITEMS", "CompletedItems"],
-          ["AVGACTIVESECPERITEM", "AvgActiveSecPerItem"]
-        ]
-      },
-      {
-        key: "certifier_productivity",
-        title: "Certifier Productivity Ranking",
-        description: "Last 3 months across all campaigns: certifiers with highest average time to take decisions. Click to open full table.",
-        cardLabelKey: "UserName",
-        cardValueKey: "TotalActions",
-        rows: [
-          { UserName: "James.Smith", TotalActions: 39, TotalActiveSeconds: 107, AvgActiveSecPerAction: 2.74 },
-          { UserName: "Albert.Woods", TotalActions: 28, TotalActiveSeconds: 7, AvgActiveSecPerAction: 0.25 },
-          { UserName: "Alice.Ford", TotalActions: 22, TotalActiveSeconds: 38, AvgActiveSecPerAction: 1.73 },
-          { UserName: "Adam.Kennedy", TotalActions: 17, TotalActiveSeconds: 51, AvgActiveSecPerAction: 3.0 },
-          { UserName: "spadmin", TotalActions: 2, TotalActiveSeconds: 88, AvgActiveSecPerAction: 44.0 },
-          { UserName: "Annie.Chavez", TotalActions: 1, TotalActiveSeconds: 19, AvgActiveSecPerAction: 19.0 },
-          { UserName: "Angela.Bell", TotalActions: 0, TotalActiveSeconds: 16, AvgActiveSecPerAction: "-" }
-        ],
-        columns: [
-          ["USERNAME", "UserName"],
-          ["TOTALACTIONS", "TotalActions"],
-          ["TOTALACTIVESECONDS", "TotalActiveSeconds"],
-          ["AVGACTIVESECPERACTION", "AvgActiveSecPerAction"]
-        ]
-      },
-      {
-        key: "completion_health",
-        title: "Completion Health by Campaign",
-        description: "Top 10 rows (last 6 months). Click to open full table.",
-        cardLabelKey: "CampaignName",
-        cardValueKey: "CompletionPercentage",
-        rows: [
-          { CampaignName: "Targeted Certification [24/3/26 6:07:09 PM IST]", TotalItems: 3, CompletedItems: 1, CompletionPercentage: 33.33 },
-          { CampaignName: "Application Owner Certification [21/3/26 11:53:46 PM IST]", TotalItems: 51, CompletedItems: 51, CompletionPercentage: 100 },
-          { CampaignName: "Application Owner Certification [22/3/26 1:07:29 AM IST]", TotalItems: 51, CompletedItems: 51, CompletionPercentage: 100 },
-          { CampaignName: "Real Demo one [25/3/26 8:05:32 PM IST]", TotalItems: 1, CompletedItems: 1, CompletionPercentage: 100 },
-          { CampaignName: "Targeted Certification [21/3/26 6:07:19 PM IST]", TotalItems: 5, CompletedItems: 5, CompletionPercentage: 100 },
-          { CampaignName: "Targeted Certification [25/12/25 11:47:06 PM IST]", TotalItems: 5, CompletedItems: 5, CompletionPercentage: 100 },
-          { CampaignName: "Test summary one [24/3/26 6:25:36 PM IST]", TotalItems: 2, CompletedItems: 2, CompletionPercentage: 100 }
-        ],
-        columns: [
-          ["CAMPAIGNNAME", "CampaignName"],
-          ["TOTALITEMS", "TotalItems"],
-          ["COMPLETEDITEMS", "CompletedItems"],
-          ["COMPLETIONPERCENTAGE", "CompletionPercentage"]
-        ]
-      },
-      {
-        key: "active_idle_trend",
-        title: "Active vs Idle Trend",
-        description: "Top 10 rows (last 6 months). Click to open full table.",
-        cardLabelKey: "WeekLabel",
-        cardValueKey: "TotalActiveSeconds",
-        rows: [
-          { WeekLabel: "22nd December 25 - 28...", TotalActiveSeconds: 20, IdleSeconds: 9, ActiveSessions: 3 },
-          { WeekLabel: "16th March 26 - 22nd ...", TotalActiveSeconds: 221, IdleSeconds: 38, ActiveSessions: 8 },
-          { WeekLabel: "23rd March 26 - 29th ...", TotalActiveSeconds: 85, IdleSeconds: 22, ActiveSessions: 4 }
-        ],
-        columns: [
-          ["WEEKLABEL", "WeekLabel"],
-          ["TOTALACTIVESECONDS", "TotalActiveSeconds"],
-          ["IDLESECONDS", "IdleSeconds"],
-          ["ACTIVESESSIONS", "ActiveSessions"]
-        ]
-      },
-      {
-        key: "engagement_depth",
-        title: "Engagement Depth",
-        description: "Last 3 months across all campaigns: certifiers with highest interaction depth (events per session), indicating more investigation effort before decisions. Click to open full table.",
-        cardLabelKey: "UserName",
-        cardValueKey: "EventsPerSession",
-        rows: [
-          { UserName: "James.Smith", Sessions: 5, Events: 36, EventsPerSession: 7.2 },
-          { UserName: "spadmin", Sessions: 5, Events: 32, EventsPerSession: 6.4 },
-          { UserName: "Angela.Bell", Sessions: 3, Events: 14, EventsPerSession: 4.67 },
-          { UserName: "Adam.Kennedy", Sessions: 2, Events: 6, EventsPerSession: 3.0 },
-          { UserName: "Albert.Woods", Sessions: 2, Events: 5, EventsPerSession: 2.5 },
-          { UserName: "Alice.Ford", Sessions: 2, Events: 4, EventsPerSession: 2.0 },
-          { UserName: "Annie.Chavez", Sessions: 1, Events: 2, EventsPerSession: 2.0 }
-        ],
-        columns: [
-          ["USERNAME", "UserName"],
-          ["SESSIONS", "Sessions"],
-          ["EVENTS", "Events"],
-          ["EVENTSPERSESSION", "EventsPerSession"]
-        ]
-      },
-      {
-        key: "avg_active_time",
-        title: "Certifier Average Active Time",
-        description: "Last 3 months across all campaigns: certifiers with highest average active time per action/decision. Click to open full table.",
-        cardLabelKey: "UserName",
-        cardValueKey: "AvgActiveSecPerAction",
-        rows: [
-          { UserName: "spadmin", TotalActions: 2, TotalActiveSeconds: 88, AvgActiveSecPerAction: 44 },
-          { UserName: "Annie.Chavez", TotalActions: 1, TotalActiveSeconds: 19, AvgActiveSecPerAction: 19 },
-          { UserName: "Adam.Kennedy", TotalActions: 17, TotalActiveSeconds: 51, AvgActiveSecPerAction: 3 },
-          { UserName: "James.Smith", TotalActions: 39, TotalActiveSeconds: 107, AvgActiveSecPerAction: 2.74 },
-          { UserName: "Alice.Ford", TotalActions: 22, TotalActiveSeconds: 38, AvgActiveSecPerAction: 1.73 },
-          { UserName: "Albert.Woods", TotalActions: 28, TotalActiveSeconds: 7, AvgActiveSecPerAction: 0.25 },
-          { UserName: "Angela.Bell", TotalActions: 0, TotalActiveSeconds: 16, AvgActiveSecPerAction: "-" }
-        ],
-        columns: [
-          ["USERNAME", "UserName"],
-          ["TOTALACTIONS", "TotalActions"],
-          ["TOTALACTIVESECONDS", "TotalActiveSeconds"],
-          ["AVGACTIVESECPERACTION", "AvgActiveSecPerAction"]
-        ]
-      }
+    const leadershipMetrics = [
+      { key:"campaign_efficiency", title:"Campaign Efficiency Scoreboard", description:"Last 6 months: campaigns with highest average time to take decisions. Campaigns may be active or closed. Click to open full table.", cardLabelKey:"CampaignName", cardValueKey:"AvgActiveSecPerItem", rows:[
+        { CampaignName:"Real Demo one [25/3/26 8:05:32 PM IST]", TotalActiveSeconds:26, CompletedItems:1, AvgActiveSecPerItem:26 },
+        { CampaignName:"Test summary one [24/3/26 6:25:36 PM IST]", TotalActiveSeconds:49, CompletedItems:2, AvgActiveSecPerItem:24.5 },
+        { CampaignName:"Targeted Certification [24/3/26 6:07:09 PM IST]", TotalActiveSeconds:10, CompletedItems:1, AvgActiveSecPerItem:10 },
+        { CampaignName:"Targeted Certification [21/3/26 6:07:19 PM IST]", TotalActiveSeconds:34, CompletedItems:5, AvgActiveSecPerItem:6.8 },
+        { CampaignName:"Targeted Certification [25/12/25 11:47:06 PM IST]", TotalActiveSeconds:20, CompletedItems:5, AvgActiveSecPerItem:4 },
+        { CampaignName:"Application Owner Certification [22/3/26 1:07:29 AM IST]", TotalActiveSeconds:126, CompletedItems:51, AvgActiveSecPerItem:2.47 },
+        { CampaignName:"Application Owner Certification [21/3/26 11:53:46 PM IST]", TotalActiveSeconds:61, CompletedItems:51, AvgActiveSecPerItem:1.2 }
+      ], columns:[["CAMPAIGNNAME","CampaignName"],["TOTALACTIVESECONDS","TotalActiveSeconds"],["COMPLETEDITEMS","CompletedItems"],["AVGACTIVESECPERITEM","AvgActiveSecPerItem"]] },
+      { key:"certifier_productivity", title:"Certifier Productivity Ranking", description:"Last 3 months across all campaigns: certifiers with highest average time to take decisions. Click to open full table.", cardLabelKey:"UserName", cardValueKey:"TotalActions", rows:[
+        { UserName:"James.Smith", TotalActions:39, TotalActiveSeconds:107, AvgActiveSecPerAction:2.74 },
+        { UserName:"Albert.Woods", TotalActions:28, TotalActiveSeconds:7, AvgActiveSecPerAction:0.25 },
+        { UserName:"Alice.Ford", TotalActions:22, TotalActiveSeconds:38, AvgActiveSecPerAction:1.73 },
+        { UserName:"Adam.Kennedy", TotalActions:17, TotalActiveSeconds:51, AvgActiveSecPerAction:3 },
+        { UserName:"spadmin", TotalActions:2, TotalActiveSeconds:88, AvgActiveSecPerAction:44 },
+        { UserName:"Annie.Chavez", TotalActions:1, TotalActiveSeconds:19, AvgActiveSecPerAction:19 },
+        { UserName:"Angela.Bell", TotalActions:0, TotalActiveSeconds:16, AvgActiveSecPerAction:"-" }
+      ], columns:[["USERNAME","UserName"],["TOTALACTIONS","TotalActions"],["TOTALACTIVESECONDS","TotalActiveSeconds"],["AVGACTIVESECPERACTION","AvgActiveSecPerAction"]] },
+      { key:"completion_health", title:"Completion Health by Campaign", description:"Top 10 rows (last 6 months). Click to open full table.", cardLabelKey:"CampaignName", cardValueKey:"CompletionPercentage", rows:[
+        { CampaignName:"Targeted Certification [24/3/26 6:07:09 PM IST]", TotalItems:3, CompletedItems:1, CompletionPercentage:33.33 },
+        { CampaignName:"Application Owner Certification [21/3/26 11:53:46 PM IST]", TotalItems:51, CompletedItems:51, CompletionPercentage:100 },
+        { CampaignName:"Application Owner Certification [22/3/26 1:07:29 AM IST]", TotalItems:51, CompletedItems:51, CompletionPercentage:100 },
+        { CampaignName:"Real Demo one [25/3/26 8:05:32 PM IST]", TotalItems:1, CompletedItems:1, CompletionPercentage:100 },
+        { CampaignName:"Targeted Certification [21/3/26 6:07:19 PM IST]", TotalItems:5, CompletedItems:5, CompletionPercentage:100 },
+        { CampaignName:"Targeted Certification [25/12/25 11:47:06 PM IST]", TotalItems:5, CompletedItems:5, CompletionPercentage:100 },
+        { CampaignName:"Test summary one [24/3/26 6:25:36 PM IST]", TotalItems:2, CompletedItems:2, CompletionPercentage:100 }
+      ], columns:[["CAMPAIGNNAME","CampaignName"],["TOTALITEMS","TotalItems"],["COMPLETEDITEMS","CompletedItems"],["COMPLETIONPERCENTAGE","CompletionPercentage"]] },
+      { key:"active_idle_trend", title:"Active vs Idle Trend", description:"Top 10 rows (last 6 months). Click to open full table.", cardLabelKey:"WeekLabel", cardValueKey:"TotalActiveSeconds", rows:[
+        { WeekLabel:"22nd December 25 - 28...", TotalActiveSeconds:20, IdleSeconds:9, ActiveSessions:3 },
+        { WeekLabel:"16th March 26 - 22nd ...", TotalActiveSeconds:221, IdleSeconds:38, ActiveSessions:8 },
+        { WeekLabel:"23rd March 26 - 29th ...", TotalActiveSeconds:85, IdleSeconds:22, ActiveSessions:4 }
+      ], columns:[["WEEKLABEL","WeekLabel"],["TOTALACTIVESECONDS","TotalActiveSeconds"],["IDLESECONDS","IdleSeconds"],["ACTIVESESSIONS","ActiveSessions"]] },
+      { key:"engagement_depth", title:"Engagement Depth", description:"Last 3 months across all campaigns: certifiers with highest interaction depth (events per session), indicating more investigation effort before decisions. Click to open full table.", cardLabelKey:"UserName", cardValueKey:"EventsPerSession", rows:[
+        { UserName:"James.Smith", Sessions:5, Events:36, EventsPerSession:7.2 },
+        { UserName:"spadmin", Sessions:5, Events:32, EventsPerSession:6.4 },
+        { UserName:"Angela.Bell", Sessions:3, Events:14, EventsPerSession:4.67 },
+        { UserName:"Adam.Kennedy", Sessions:2, Events:6, EventsPerSession:3 },
+        { UserName:"Albert.Woods", Sessions:2, Events:5, EventsPerSession:2.5 },
+        { UserName:"Alice.Ford", Sessions:2, Events:4, EventsPerSession:2 },
+        { UserName:"Annie.Chavez", Sessions:1, Events:2, EventsPerSession:2 }
+      ], columns:[["USERNAME","UserName"],["SESSIONS","Sessions"],["EVENTS","Events"],["EVENTSPERSESSION","EventsPerSession"]] },
+      { key:"avg_active_time", title:"Certifier Average Active Time", description:"Last 3 months across all campaigns: certifiers with highest average active time per action/decision. Click to open full table.", cardLabelKey:"UserName", cardValueKey:"AvgActiveSecPerAction", rows:[
+        { UserName:"spadmin", TotalActions:2, TotalActiveSeconds:88, AvgActiveSecPerAction:44 },
+        { UserName:"Annie.Chavez", TotalActions:1, TotalActiveSeconds:19, AvgActiveSecPerAction:19 },
+        { UserName:"Adam.Kennedy", TotalActions:17, TotalActiveSeconds:51, AvgActiveSecPerAction:3 },
+        { UserName:"James.Smith", TotalActions:39, TotalActiveSeconds:107, AvgActiveSecPerAction:2.74 },
+        { UserName:"Alice.Ford", TotalActions:22, TotalActiveSeconds:38, AvgActiveSecPerAction:1.73 },
+        { UserName:"Albert.Woods", TotalActions:28, TotalActiveSeconds:7, AvgActiveSecPerAction:0.25 },
+        { UserName:"Angela.Bell", TotalActions:0, TotalActiveSeconds:16, AvgActiveSecPerAction:"-" }
+      ], columns:[["USERNAME","UserName"],["TOTALACTIONS","TotalActions"],["TOTALACTIVESECONDS","TotalActiveSeconds"],["AVGACTIVESECPERACTION","AvgActiveSecPerAction"]] }
     ];
 
+    const resultsColumns = ["CAMPAIGN NAME","CREATED DATE (UTC)","STATUS","OWNER","CERTIFICATIONS","TOTAL ITEMS","COMPLETED ITEMS","ACTIVE TIME","IDLE TIME","AVG ACTIVE / ITEM (S)","COMPLETION %"];
+    const resultsRows = [
+      ["Real Demo one [25/3/26 8:05:32 PM IST]","25/03/2026, 14:35:32 UTC","Active","-","3","1","1","26 s","0 s","26","100%"],
+      ["Test summary one [24/3/26 6:25:36 PM IST]","24/03/2026, 12:55:36 UTC","Active","-","3","2","2","49 s","27 s","24.5","100%"],
+      ["Targeted Certification [24/3/26 6:07:09 PM IST]","24/03/2026, 12:37:09 UTC","Active","-","1","3","1","10 s","3 s","10","33.33%"],
+      ["Application Owner Certification [22/3/26 1:07:29 AM IST]","21/03/2026, 19:37:29 UTC","Active","-","1","51","51","2m 6s","0 s","2.47","100%"],
+      ["Application Owner Certification [21/3/26 11:53:46 PM IST]","21/03/2026, 18:23:46 UTC","Active","-","1","51","51","1m 1s","52 s","1.2","100%"],
+      ["Targeted Certification [21/3/26 6:07:19 PM IST]","21/03/2026, 12:37:19 UTC","Active","-","1","5","5","34 s","0 s","6.8","100%"]
+    ];
+
+    const pages = {
+      leadership: document.getElementById("leadershipPage"),
+      leadershipDetail: document.getElementById("leadershipDetailPage"),
+      operational: document.getElementById("operationalSearchPage"),
+      results: document.getElementById("campaignResultsPage")
+    };
+
     const cardsGrid = document.getElementById("cardsGrid");
-    const detailPage = document.getElementById("detailPage");
-    const landingPage = document.getElementById("landingPage");
-    const detailTitle = document.getElementById("detailTitle");
     const metricSelect = document.getElementById("metricSelect");
+    const detailTitle = document.getElementById("detailTitle");
+    const detailMeta = document.getElementById("detailMeta");
     const detailHead = document.getElementById("detailHead");
     const detailBody = document.getElementById("detailBody");
-    const tableMeta = document.getElementById("tableMeta");
+    const resultsTable = document.getElementById("resultsTable");
+
+    function showPage(name) {
+      Object.values(pages).forEach((page) => page.classList.remove("active"));
+      pages[name].classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
     function formatCardValue(metricKey, value) {
       if (value === "-") return value;
       if (metricKey === "completion_health") return Number(value).toFixed(2) + "%";
-      if (typeof value === "number") return value.toFixed(value % 1 === 0 ? 2 : 2);
+      if (typeof value === "number") return value.toFixed(2);
       return String(value);
     }
 
-    function formatTableValue(value) {
-      if (typeof value === "number") {
-        return Number.isInteger(value) ? String(value) : String(value);
-      }
-      return value;
-    }
-
-    function renderCards() {
+    function renderLeadershipCards() {
       cardsGrid.innerHTML = "";
-
-      metrics.forEach((metric) => {
+      leadershipMetrics.forEach((metric) => {
         const max = Math.max(...metric.rows.map((row) => Number(row[metric.cardValueKey]) || 0), 1);
         const card = document.createElement("article");
         card.className = "metric-card";
@@ -761,40 +232,76 @@
     }
 
     function renderMetricOptions() {
-      metricSelect.innerHTML = metrics.map((metric) =>
-        `<option value="${metric.key}">${metric.title}</option>`
-      ).join("");
+      metricSelect.innerHTML = leadershipMetrics.map((metric) => `<option value="${metric.key}">${metric.title}</option>`).join("");
     }
 
-    function openMetric(metricKey) {
-      const metric = metrics.find((item) => item.key === metricKey) || metrics[0];
+    function openMetric(key) {
+      const metric = leadershipMetrics.find((item) => item.key === key) || leadershipMetrics[0];
       detailTitle.textContent = metric.title;
       metricSelect.value = metric.key;
-      tableMeta.textContent = `Showing 1-${metric.rows.length} of ${metric.rows.length} rows`;
+      detailMeta.textContent = `Showing 1-${metric.rows.length} of ${metric.rows.length} rows`;
       detailHead.innerHTML = `<tr>${metric.columns.map((column) => `<th>${column[0]}</th>`).join("")}</tr>`;
-      detailBody.innerHTML = metric.rows.map((row) =>
-        `<tr>${metric.columns.map((column) => `<td>${formatTableValue(row[column[1]])}</td>`).join("")}</tr>`
-      ).join("");
-      landingPage.classList.remove("active");
-      detailPage.classList.add("active");
+      detailBody.innerHTML = metric.rows.map((row) => `<tr>${metric.columns.map((column) => `<td>${row[column[1]]}</td>`).join("")}</tr>`).join("");
+      showPage("leadershipDetail");
     }
 
-    document.getElementById("backToLanding").addEventListener("click", () => {
-      detailPage.classList.remove("active");
-      landingPage.classList.add("active");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    function renderResultsTable() {
+      resultsTable.innerHTML = `
+        <thead>
+          <tr>${resultsColumns.map((column, index) => `<th>${column}${index === 1 ? ' <span class="sort">&darr;</span>' : ' <span class="sort">&#8597;</span>'}</th>`).join("")}</tr>
+        </thead>
+        <tbody>${resultsRows.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody>
+      `;
+    }
+
+    document.getElementById("tab-created").innerHTML = `
+      <div class="search-grid">
+        <div class="field"><label>CAMPAIGN CREATED FROM (DATE)</label><input type="text" value="30-12-2025"></div>
+        <div class="field"><label>CAMPAIGN CREATED TILL (DATE)</label><input type="text" value="30-03-2026"></div>
+      </div>
+    `;
+
+    document.getElementById("tab-campaign").innerHTML = `
+      <div class="field"><label>CAMPAIGN NAME</label></div>
+      <div class="dropdown-box"><div class="dropdown-toggle">Select campaign(s)</div></div>
+      <div class="dropdown-box">
+        <div class="dropdown-panel">
+          <input class="search-input" type="text" value="Search campaign..." readonly>
+          <label class="check-row"><input type="checkbox"> <span>Application Owner Certification [21/3/26 11:53:46 PM IST]</span></label>
+          <label class="check-row"><input type="checkbox"> <span>Application Owner Certification [22/3/26 1:07:29 AM IST]</span></label>
+          <label class="check-row"><input type="checkbox"> <span>Real Demo one [25/3/26 8:05:32 PM IST]</span></label>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("tab-certifier").innerHTML = `
+      <div class="search-row">
+        <div class="field"><label>SEARCH CERTIFIER (ADMIN)</label><input type="text" value="Type name or email"></div>
+        <button class="secondary-btn" type="button">Search</button>
+      </div>
+      <div class="field"><label>SELECT CERTIFIER</label><select><option>Select</option></select></div>
+    `;
+
+    document.getElementById("goOperational").addEventListener("click", () => showPage("operational"));
+    document.getElementById("goLeadership").addEventListener("click", () => showPage("leadership"));
+    document.getElementById("backToLeadership").addEventListener("click", () => showPage("leadership"));
+    document.getElementById("backToSearch").addEventListener("click", () => showPage("operational"));
+    document.getElementById("applyFilters").addEventListener("click", () => showPage("results"));
+    document.getElementById("applyMetric").addEventListener("click", () => openMetric(metricSelect.value));
+    metricSelect.addEventListener("change", () => openMetric(metricSelect.value));
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
+        document.querySelectorAll(".search-pane").forEach((pane) => pane.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById(`tab-${tab.dataset.tab}`).classList.add("active");
+      });
     });
 
-    document.getElementById("applyBtn").addEventListener("click", () => {
-      openMetric(metricSelect.value);
-    });
-
-    metricSelect.addEventListener("change", () => {
-      openMetric(metricSelect.value);
-    });
-
-    renderCards();
+    renderLeadershipCards();
     renderMetricOptions();
+    renderResultsTable();
   </script>
 </body>
 </html>
