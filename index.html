@@ -3,25 +3,950 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello World</title>
+  <title>UAR Performance Analytics Demo</title>
   <style>
+    :root {
+      --bg: #edf3fb;
+      --surface: rgba(255, 255, 255, 0.94);
+      --surface-2: #f6f9fe;
+      --surface-3: #eaf1fb;
+      --text: #162033;
+      --text-soft: #62708a;
+      --primary: #2e5cde;
+      --primary-2: #1f47ba;
+      --border: #d8e3f2;
+      --ring: rgba(46, 92, 222, 0.2);
+      --ok-bg: #e6f7ef;
+      --ok-text: #13774b;
+      --warn-bg: #fff2d8;
+      --warn-text: #9a5c00;
+      --risk-bg: #ffe2e2;
+      --risk-text: #a12a2a;
+      --shadow: 0 22px 50px rgba(20, 37, 77, 0.08);
+      --hero: radial-gradient(circle at top left, rgba(69, 125, 255, 0.22), transparent 32%),
+        linear-gradient(180deg, #f7faff 0%, #edf3fb 44%, #e6eef9 100%);
+    }
+
+    body.theme-dark {
+      --bg: #08111f;
+      --surface: rgba(16, 28, 48, 0.96);
+      --surface-2: #0d1b31;
+      --surface-3: #132440;
+      --text: #f1f6ff;
+      --text-soft: #a9bbda;
+      --primary: #6d92ff;
+      --primary-2: #87a5ff;
+      --border: #2a4268;
+      --ring: rgba(109, 146, 255, 0.24);
+      --ok-bg: #123227;
+      --ok-text: #8be0b5;
+      --warn-bg: #3c2d0a;
+      --warn-text: #f4cb73;
+      --risk-bg: #3f1d25;
+      --risk-text: #ff9aac;
+      --shadow: 0 24px 56px rgba(0, 0, 0, 0.34);
+      --hero: radial-gradient(circle at top left, rgba(112, 147, 255, 0.18), transparent 28%),
+        linear-gradient(180deg, #08111f 0%, #0a1627 40%, #0d1b31 100%);
+    }
+
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: Arial, sans-serif;
-      background: #f4f7fb;
-      color: #1f2937;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: var(--hero);
+      color: var(--text);
     }
-
-    h1 {
-      font-size: clamp(2rem, 6vw, 4rem);
+    .shell {
+      width: min(1400px, calc(100vw - 28px));
+      margin: 18px auto 30px;
+    }
+    .hero {
+      background: linear-gradient(135deg, rgba(46, 92, 222, 0.96), rgba(20, 43, 106, 0.96));
+      color: #fff;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -120px -120px auto;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.24), transparent 60%);
+      pointer-events: none;
+    }
+    .hero-top, .section-header, .actions, .page-header, .pager {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .hero h1, .page-title, .section-title {
       margin: 0;
+      letter-spacing: -0.03em;
+    }
+    .hero h1 { font-size: clamp(2rem, 4vw, 3.4rem); }
+    .hero p, .page-subtitle, .section-meta {
+      margin: 6px 0 0;
+      line-height: 1.45;
+    }
+    .hero p { color: rgba(255, 255, 255, 0.84); max-width: 860px; }
+    .page-subtitle, .section-meta, .muted { color: var(--text-soft); }
+    .hero-badges, .status-pills, .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .hero-badges { margin-top: 18px; }
+    .badge, .pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .badge {
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .pill.ok { background: var(--ok-bg); color: var(--ok-text); }
+    .pill.warn { background: var(--warn-bg); color: var(--warn-text); }
+    .pill.risk { background: var(--risk-bg); color: var(--risk-text); }
+    .switch-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .switch {
+      width: 52px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.18);
+      position: relative;
+      cursor: pointer;
+    }
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.18s ease;
+    }
+    body.theme-dark .switch::after { transform: translateX(24px); }
+    .page { display: none; margin-top: 18px; }
+    .page.active { display: block; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .page-title { font-size: clamp(1.65rem, 2vw, 2.3rem); }
+    .tabs {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 6px;
+      background: var(--surface-2);
+      margin-bottom: 16px;
+    }
+    .tab, .btn, .link-btn { font: inherit; cursor: pointer; }
+    .tab {
+      border: none;
+      background: transparent;
+      color: var(--text-soft);
+      padding: 10px 13px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+    .tab.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+    .btn {
+      border-radius: 11px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 700;
+    }
+    .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn.primary:hover { background: var(--primary-2); }
+    .btn.ghost { background: var(--surface-2); }
+    .link-btn {
+      border: none;
+      background: none;
+      padding: 0;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .summary-grid, .leadership-grid, .session-summary {
+      display: grid;
+      gap: 14px;
+    }
+    .summary-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 14px;
+    }
+    .summary-item {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .summary-item .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.78;
+    }
+    .summary-item .value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-top: 6px;
+    }
+    .summary-item .hint {
+      margin-top: 6px;
+      font-size: 13px;
+      opacity: 0.82;
+      line-height: 1.35;
+    }
+    .leadership-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+      display: grid;
+      gap: 12px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(46, 92, 222, 0.45);
+    }
+    .metric-card h3 { margin: 0; font-size: 18px; }
+    .metric-card p { margin: 0; color: var(--text-soft); font-size: 13px; line-height: 1.45; }
+    .bar-list { display: grid; gap: 10px; }
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1.3fr) minmax(120px, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .bar-label, .bar-value { font-size: 13px; font-weight: 700; }
+    .bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #2e5cde, #7da2ff);
+    }
+    .field-grid, .detail-toolbar {
+      display: grid;
+      gap: 12px;
+    }
+    .field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .detail-toolbar {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) auto auto;
+      margin-bottom: 12px;
+      align-items: end;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-soft);
+      font-weight: 800;
+    }
+    .field input, .field select {
+      width: 100%;
+      min-height: 43px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 10px 12px;
+      font: inherit;
+      outline: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--ring);
+    }
+    .helper {
+      margin-top: 12px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: rgba(46, 92, 222, 0.08);
+      border: 1px solid rgba(46, 92, 222, 0.18);
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .table-shell {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+    th, td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      font-size: 13px;
+    }
+    th {
+      background: var(--surface-2);
+      color: var(--text-soft);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tbody tr:hover { background: var(--surface-2); }
+    .clickable-row { cursor: pointer; }
+    .split {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 14px;
+    }
+    .note-list { display: grid; gap: 10px; }
+    .note {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: var(--surface-2);
+    }
+    .note h4 { margin: 0 0 6px; font-size: 15px; }
+    .note p { margin: 0; color: var(--text-soft); line-height: 1.45; font-size: 13px; }
+    .k-card {
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 12px;
+      background: var(--surface-2);
+    }
+    .k-card .k-label {
+      color: var(--text-soft);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+    }
+    .k-card .k-value {
+      margin-top: 6px;
+      font-weight: 800;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+    @media (max-width: 1100px) {
+      .summary-grid, .leadership-grid, .split { grid-template-columns: 1fr; }
+      .detail-toolbar { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .shell { width: min(100vw - 18px, 1400px); margin-top: 10px; }
+      .hero, .card { padding: 16px; border-radius: 18px; }
+      .hero-top, .page-header, .section-header, .pager, .actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .summary-grid, .field-grid { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <h1>Hello World</h1>
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <h1>UAR Performance Analytics</h1>
+          <p>Static client preview based on the plugin UI. This demo mirrors the leadership dashboard, campaign analytics workflow, and drill-down experience with realistic sample data.</p>
+          <div class="hero-badges">
+            <span class="badge">Leadership overview</span>
+            <span class="badge">Campaign-level drill down</span>
+            <span class="badge">User sessions</span>
+            <span class="badge">No backend required</span>
+          </div>
+        </div>
+        <div class="switch-wrap">
+          <span id="themeLabel">Light</span>
+          <button id="themeToggle" class="switch" type="button" aria-label="Toggle theme"></button>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="label">Tenant</div>
+          <div class="value">Demo Sandbox</div>
+          <div class="hint">Prepared for client review with non-production data.</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">Signed In As</div>
+          <div class="value">Avery.Williams</div>
+          <div class="hint">Admin mode with access to leadership and operational views.</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">Campaigns Tracked</div>
+          <div class="value">18</div>
+          <div class="hint">Mixed access review, joiner-mover-leaver, and application clean-up campaigns.</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">Default Window</div>
+          <div class="value">Last 6 Months</div>
+          <div class="hint">Matches the current plugin dashboard behavior.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="leadershipPage" class="page active">
+      <div class="page-header card">
+        <div>
+          <h2 class="page-title">Leadership Dashboard</h2>
+          <p class="page-subtitle">Top KPI cards show the strongest performers and risk areas across certification campaigns. Each card can be opened to view a detailed table.</p>
+        </div>
+        <button class="btn" type="button" data-nav="operational">Operational Dashboard</button>
+      </div>
+      <div class="card">
+        <div class="leadership-grid" id="leadershipGrid"></div>
+      </div>
+    </section>
+
+    <section id="leadershipDetailPage" class="page">
+      <div class="card">
+        <div class="section-header">
+          <div>
+            <button class="link-btn" type="button" data-nav="leadership">← Back to Leadership</button>
+            <h2 class="section-title" id="detailTitle">Metric Details</h2>
+            <p class="section-meta" id="detailMeta">Detailed scorecard for the selected leadership metric.</p>
+          </div>
+          <div class="status-pills">
+            <span class="pill ok">Live filter preview</span>
+            <span class="pill warn">Dummy download action</span>
+          </div>
+        </div>
+        <div class="detail-toolbar">
+          <div class="field">
+            <label for="metricSelect">Metric</label>
+            <select id="metricSelect"></select>
+          </div>
+          <div class="field">
+            <label for="metricFrom">From Date</label>
+            <input id="metricFrom" type="date">
+          </div>
+          <div class="field">
+            <label for="metricTo">To Date</label>
+            <input id="metricTo" type="date">
+          </div>
+          <button id="applyMetric" class="btn primary" type="button">Apply</button>
+          <button id="downloadMetric" class="btn ghost" type="button">Download CSV</button>
+        </div>
+        <p class="helper" id="detailSummary"></p>
+        <div class="table-shell">
+          <table>
+            <thead id="detailHead"></thead>
+            <tbody id="detailBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="operationalPage" class="page">
+      <div class="page-header card">
+        <div>
+          <h2 class="page-title">Campaign Time Analytics</h2>
+          <p class="page-subtitle">Manager and admin users can review campaign activity, spot bottlenecks, and drill from campaign summary into user-level sessions.</p>
+          <p class="section-meta">Signed in as Avery.Williams | Access: Admin</p>
+        </div>
+        <button class="btn" type="button" data-nav="leadership">Leadership Dashboard</button>
+      </div>
+      <div class="card">
+        <div class="tabs">
+          <button class="tab active" type="button">By Created Date</button>
+          <button class="tab" type="button">By Campaign Name</button>
+          <button class="tab" type="button">By Certifier</button>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="createdFrom">Campaign Created From</label>
+            <input id="createdFrom" type="date">
+          </div>
+          <div class="field">
+            <label for="createdTo">Campaign Created Till</label>
+            <input id="createdTo" type="date">
+          </div>
+        </div>
+        <div class="actions" style="margin-top: 14px;">
+          <button class="btn ghost" type="button">Reset</button>
+          <button class="btn primary" type="button">Apply Filters</button>
+        </div>
+        <p class="helper">Admin mode preview: client can imagine this page being used to search any certifier by name or email, filter campaigns by created date, or jump into specific campaign names.</p>
+      </div>
+      <div class="split">
+        <div class="card">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Campaign Results</h3>
+              <p class="section-meta">Clickable rows open user breakdown for the selected campaign.</p>
+            </div>
+            <div class="legend">
+              <span class="pill ok">Fast turnarounds</span>
+              <span class="pill warn">Needs review</span>
+              <span class="pill risk">Delayed</span>
+            </div>
+          </div>
+          <div class="table-shell">
+            <table>
+              <thead id="campaignHead"></thead>
+              <tbody id="campaignBody"></tbody>
+            </table>
+          </div>
+          <div class="pager">
+            <span>Showing 6 demo campaigns</span>
+            <span>Click any row to inspect certifier behavior</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="section-title">Preview Notes</h3>
+          <div class="note-list" style="margin-top: 12px;">
+            <div class="note">
+              <h4>Client-friendly walkthrough</h4>
+              <p>The page starts on leadership metrics, then moves into operational drill-down without needing any plugin setup or a live SailPoint instance.</p>
+            </div>
+            <div class="note">
+              <h4>Realistic field naming</h4>
+              <p>Labels and table structures follow the plugin UI so feedback can focus on layout, terminology, and reporting usefulness.</p>
+            </div>
+            <div class="note">
+              <h4>Safe dummy content</h4>
+              <p>All names, campaigns, and numbers on this page are illustrative and can be replaced later with final API-backed values.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="userPage" class="page">
+      <div class="card">
+        <div class="section-header">
+          <div>
+            <button class="link-btn" type="button" data-nav="operational">← Back to Campaign Results</button>
+            <h2 class="section-title">Certificate User Breakdown</h2>
+            <p class="section-meta" id="userMeta">User-level view for the selected campaign.</p>
+          </div>
+          <div class="status-pills">
+            <span class="pill warn">Drill-down view</span>
+          </div>
+        </div>
+        <div class="table-shell">
+          <table>
+            <thead id="userHead"></thead>
+            <tbody id="userBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="sessionPage" class="page">
+      <div class="card">
+        <div class="section-header">
+          <div>
+            <button class="link-btn" type="button" data-back-user>← Back to User Breakdown</button>
+            <h2 class="section-title">User Session Deep Dive</h2>
+            <p class="section-meta">Session-level interaction history for the selected certification user.</p>
+          </div>
+          <div class="status-pills">
+            <span class="pill ok">Investigation ready</span>
+          </div>
+        </div>
+        <div class="session-summary" id="sessionSummary" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 14px;"></div>
+        <div class="table-shell">
+          <table>
+            <thead id="sessionHead"></thead>
+            <tbody id="sessionBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const leadershipCards = [
+      {
+        key: "campaign_efficiency",
+        title: "Campaign Efficiency Scoreboard",
+        description: "Campaigns with the highest average decision time per item. Highlights where reviewers spend the most effort.",
+        rows: [
+          { CampaignName: "Q1 Finance Access Recertification", AvgActiveSecPerItem: 148, CompletionRate: "92%", Items: 1842 },
+          { CampaignName: "Privileged Access Cleanup Wave 2", AvgActiveSecPerItem: 134, CompletionRate: "81%", Items: 968 },
+          { CampaignName: "SAP Role Hygiene Review", AvgActiveSecPerItem: 126, CompletionRate: "88%", Items: 1132 },
+          { CampaignName: "North America Joiner Review", AvgActiveSecPerItem: 109, CompletionRate: "96%", Items: 786 }
+        ]
+      },
+      {
+        key: "certifier_productivity",
+        title: "Certifier Productivity Ranking",
+        description: "Certifiers with the highest action throughput across active campaigns in the past quarter.",
+        rows: [
+          { UserName: "Nina Patel", TotalActions: 318, Campaigns: 7, AvgHandleTime: "2m 18s" },
+          { UserName: "Marcus Lee", TotalActions: 291, Campaigns: 5, AvgHandleTime: "2m 42s" },
+          { UserName: "Priya Menon", TotalActions: 264, Campaigns: 6, AvgHandleTime: "2m 55s" },
+          { UserName: "Ethan Ross", TotalActions: 247, Campaigns: 4, AvgHandleTime: "3m 01s" }
+        ]
+      },
+      {
+        key: "completion_health",
+        title: "Completion Health by Campaign",
+        description: "Completion percentages help leaders identify campaigns that are on track versus those at risk of missing deadlines.",
+        rows: [
+          { CampaignName: "ServiceNow App Access Review", CompletionPercentage: 97.4, DueDate: "2026-04-12", Owner: "IT Governance" },
+          { CampaignName: "HR Joiner-Mover-Leaver", CompletionPercentage: 94.1, DueDate: "2026-04-08", Owner: "HR Ops" },
+          { CampaignName: "Global Shared Mailbox Review", CompletionPercentage: 83.6, DueDate: "2026-04-04", Owner: "Messaging Team" },
+          { CampaignName: "Inactive Oracle Entitlements", CompletionPercentage: 74.8, DueDate: "2026-04-02", Owner: "ERP Security" }
+        ]
+      },
+      {
+        key: "active_idle_trend",
+        title: "Active vs Idle Trend",
+        description: "Weekly view of active versus idle review behavior to show where campaigns experience review pauses.",
+        rows: [
+          { WeekLabel: "2026-W09", TotalActiveSeconds: 162000, IdleSeconds: 26000 },
+          { WeekLabel: "2026-W10", TotalActiveSeconds: 151400, IdleSeconds: 31800 },
+          { WeekLabel: "2026-W11", TotalActiveSeconds: 143800, IdleSeconds: 41000 },
+          { WeekLabel: "2026-W12", TotalActiveSeconds: 169200, IdleSeconds: 28750 }
+        ]
+      },
+      {
+        key: "engagement_depth",
+        title: "Engagement Depth",
+        description: "Users with deeper session activity usually spend more time investigating entitlement context before making decisions.",
+        rows: [
+          { UserName: "Olivia Chen", EventsPerSession: 22.4, Sessions: 38, Campaigns: 3 },
+          { UserName: "Jordan King", EventsPerSession: 19.6, Sessions: 41, Campaigns: 4 },
+          { UserName: "Ravi Kapoor", EventsPerSession: 18.7, Sessions: 29, Campaigns: 2 },
+          { UserName: "Sara Mitchell", EventsPerSession: 17.9, Sessions: 34, Campaigns: 4 }
+        ]
+      },
+      {
+        key: "certifier_avg_time",
+        title: "Certifier Average Active Time",
+        description: "Average active time per action provides a clean benchmark for identifying especially thorough or delayed reviewers.",
+        rows: [
+          { UserName: "Helen Brooks", AvgActiveSecPerAction: 212, TotalActions: 141, Team: "APAC Finance" },
+          { UserName: "Noah Diaz", AvgActiveSecPerAction: 198, TotalActions: 165, Team: "Global IT" },
+          { UserName: "Manpreet Gill", AvgActiveSecPerAction: 183, TotalActions: 154, Team: "Infrastructure" },
+          { UserName: "Aisha Khan", AvgActiveSecPerAction: 176, TotalActions: 173, Team: "Business Apps" }
+        ]
+      }
+    ];
+
+    const campaigns = [
+      { CampaignGroupId: "CG-24031", CampaignName: "Q1 Finance Access Recertification", CampaignOwner: "IT Governance", CampaignCreated: "2026-01-14", TotalActiveTime: "63h 10m", TotalIdleTime: "8h 24m", Completion: "92%", Risk: "ok" },
+      { CampaignGroupId: "CG-24044", CampaignName: "Privileged Access Cleanup Wave 2", CampaignOwner: "Cyber Defense", CampaignCreated: "2026-02-03", TotalActiveTime: "54h 42m", TotalIdleTime: "16h 05m", Completion: "81%", Risk: "warn" },
+      { CampaignGroupId: "CG-24057", CampaignName: "SAP Role Hygiene Review", CampaignOwner: "ERP Security", CampaignCreated: "2026-02-21", TotalActiveTime: "47h 18m", TotalIdleTime: "10h 16m", Completion: "88%", Risk: "warn" },
+      { CampaignGroupId: "CG-24063", CampaignName: "North America Joiner Review", CampaignOwner: "HR Ops", CampaignCreated: "2026-03-01", TotalActiveTime: "31h 54m", TotalIdleTime: "4h 08m", Completion: "96%", Risk: "ok" },
+      { CampaignGroupId: "CG-24068", CampaignName: "Inactive Oracle Entitlements", CampaignOwner: "Finance Platforms", CampaignCreated: "2026-03-07", TotalActiveTime: "39h 47m", TotalIdleTime: "18h 55m", Completion: "74%", Risk: "risk" },
+      { CampaignGroupId: "CG-24072", CampaignName: "Shared Mailbox Quarterly Review", CampaignOwner: "Messaging Team", CampaignCreated: "2026-03-12", TotalActiveTime: "22h 11m", TotalIdleTime: "11h 39m", Completion: "83%", Risk: "warn" }
+    ];
+
+    const usersByCampaign = {
+      "CG-24031": [
+        { CertificateId: "CERT-9001", CertificateName: "Finance Access Wave A", UserName: "Elena Foster", CertifierName: "Nina Patel", ActionTaken: "Approve", ActiveTime: "18m 42s", IdleTime: "2m 08s", TotalTime: "20m 50s", SegmentCount: 4, Finished: "2026-03-18 09:42", Completion: "100%" },
+        { CertificateId: "CERT-9002", CertificateName: "Finance Access Wave A", UserName: "Jacob Reed", CertifierName: "Marcus Lee", ActionTaken: "Revoke", ActiveTime: "13m 16s", IdleTime: "1m 44s", TotalTime: "15m 00s", SegmentCount: 3, Finished: "2026-03-18 10:22", Completion: "100%" },
+        { CertificateId: "CERT-9003", CertificateName: "Finance Access Wave B", UserName: "Chloe Martin", CertifierName: "Priya Menon", ActionTaken: "Approve", ActiveTime: "21m 08s", IdleTime: "4m 14s", TotalTime: "25m 22s", SegmentCount: 5, Finished: "2026-03-19 15:06", Completion: "100%" }
+      ],
+      "CG-24044": [
+        { CertificateId: "CERT-9101", CertificateName: "Privileged Cleanup Batch 1", UserName: "Aiden Scott", CertifierName: "Olivia Chen", ActionTaken: "Revoke", ActiveTime: "29m 54s", IdleTime: "6m 21s", TotalTime: "36m 15s", SegmentCount: 7, Finished: "2026-03-20 12:18", Completion: "100%" },
+        { CertificateId: "CERT-9102", CertificateName: "Privileged Cleanup Batch 1", UserName: "Maya Singh", CertifierName: "Ravi Kapoor", ActionTaken: "Escalate", ActiveTime: "32m 11s", IdleTime: "7m 59s", TotalTime: "40m 10s", SegmentCount: 8, Finished: "2026-03-20 13:40", Completion: "94%" }
+      ],
+      default: [
+        { CertificateId: "CERT-9201", CertificateName: "Campaign Demo Certificate", UserName: "Harper Cole", CertifierName: "Sara Mitchell", ActionTaken: "Approve", ActiveTime: "16m 37s", IdleTime: "2m 42s", TotalTime: "19m 19s", SegmentCount: 4, Finished: "2026-03-21 11:32", Completion: "100%" }
+      ]
+    };
+
+    const sessionsByUser = {
+      "Elena Foster": {
+        summary: { User: "Elena Foster", FirstVisit: "2026-03-18 08:55", LastVisit: "2026-03-18 09:42", TotalActive: "18m 42s", TotalSessions: "3" },
+        rows: [
+          { SessionId: "SES-3011", StartTime: "2026-03-18 08:55", EndTime: "2026-03-18 09:04", Duration: "9m 12s", EventCount: 14, Page: "Certification Overview" },
+          { SessionId: "SES-3012", StartTime: "2026-03-18 09:10", EndTime: "2026-03-18 09:24", Duration: "13m 54s", EventCount: 21, Page: "Identity Detail" },
+          { SessionId: "SES-3013", StartTime: "2026-03-18 09:31", EndTime: "2026-03-18 09:42", Duration: "11m 07s", EventCount: 16, Page: "Decision Submit" }
+        ]
+      },
+      "Aiden Scott": {
+        summary: { User: "Aiden Scott", FirstVisit: "2026-03-20 11:48", LastVisit: "2026-03-20 12:18", TotalActive: "29m 54s", TotalSessions: "4" },
+        rows: [
+          { SessionId: "SES-4102", StartTime: "2026-03-20 11:48", EndTime: "2026-03-20 11:59", Duration: "10m 55s", EventCount: 19, Page: "Campaign Review" },
+          { SessionId: "SES-4103", StartTime: "2026-03-20 12:02", EndTime: "2026-03-20 12:18", Duration: "16m 42s", EventCount: 27, Page: "Access History" }
+        ]
+      },
+      default: {
+        summary: { User: "Demo User", FirstVisit: "2026-03-21 10:02", LastVisit: "2026-03-21 10:29", TotalActive: "16m 37s", TotalSessions: "2" },
+        rows: [
+          { SessionId: "SES-5201", StartTime: "2026-03-21 10:02", EndTime: "2026-03-21 10:12", Duration: "10m 00s", EventCount: 13, Page: "Certification Overview" },
+          { SessionId: "SES-5202", StartTime: "2026-03-21 10:18", EndTime: "2026-03-21 10:29", Duration: "11m 03s", EventCount: 18, Page: "Item Decision Panel" }
+        ]
+      }
+    };
+
+    const metricSelect = document.getElementById("metricSelect");
+    const detailTitle = document.getElementById("detailTitle");
+    const detailMeta = document.getElementById("detailMeta");
+    const detailSummary = document.getElementById("detailSummary");
+    const metricFrom = document.getElementById("metricFrom");
+    const metricTo = document.getElementById("metricTo");
+
+    function isoDate(offsetDays) {
+      const date = new Date();
+      date.setDate(date.getDate() + offsetDays);
+      return date.toISOString().slice(0, 10);
+    }
+
+    function riskLabel(value) {
+      if (value === "ok") return "On Track";
+      if (value === "warn") return "Needs Attention";
+      return "Delayed";
+    }
+
+    function metricValueKey(card) {
+      return Object.keys(card.rows[0]).find((key) =>
+        ["AvgActiveSecPerItem", "TotalActions", "CompletionPercentage", "TotalActiveSeconds", "EventsPerSession", "AvgActiveSecPerAction"].includes(key)
+      );
+    }
+
+    function buildBars(card) {
+      const valueKey = metricValueKey(card);
+      const labelKey = Object.keys(card.rows[0])[0];
+      const maxValue = Math.max(...card.rows.map((row) => Number(row[valueKey]) || 1));
+
+      return card.rows.map((row) => {
+        const width = Math.max(10, Math.round(((Number(row[valueKey]) || 0) / maxValue) * 100));
+        const value = typeof row[valueKey] === "number" ? row[valueKey].toFixed(valueKey === "CompletionPercentage" ? 1 : 0) : row[valueKey];
+        const suffix = valueKey === "CompletionPercentage" ? "%" : "";
+        return `
+          <div class="bar-row">
+            <div class="bar-label">${row[labelKey]}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
+            <div class="bar-value">${value}${suffix}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderLeadershipCards() {
+      const grid = document.getElementById("leadershipGrid");
+      grid.innerHTML = "";
+      leadershipCards.forEach((card) => {
+        const metricCard = document.createElement("article");
+        metricCard.className = "metric-card";
+        metricCard.innerHTML = `
+          <div>
+            <h3>${card.title}</h3>
+            <p>${card.description}</p>
+          </div>
+          <div class="bar-list">${buildBars(card)}</div>
+        `;
+        metricCard.addEventListener("click", () => openMetric(card.key));
+        grid.appendChild(metricCard);
+      });
+    }
+
+    function renderMetricTable(card) {
+      const head = document.getElementById("detailHead");
+      const body = document.getElementById("detailBody");
+      const keys = Object.keys(card.rows[0]);
+      head.innerHTML = `<tr>${keys.map((key) => `<th>${key.replace(/([A-Z])/g, " $1").trim()}</th>`).join("")}</tr>`;
+      body.innerHTML = card.rows.map((row) => `
+        <tr>${keys.map((key) => `<td>${row[key]}</td>`).join("")}</tr>
+      `).join("");
+      detailSummary.textContent = `${card.rows.length} sample row(s) shown for "${card.title}". In the live plugin this area is API-driven and supports pagination and CSV export.`;
+    }
+
+    function openMetric(metricKey) {
+      const card = leadershipCards.find((item) => item.key === metricKey) || leadershipCards[0];
+      showPage("leadershipDetail");
+      detailTitle.textContent = card.title;
+      detailMeta.textContent = "Client preview of the full metric table with a date-range toolbar and export action.";
+      metricSelect.value = card.key;
+      renderMetricTable(card);
+    }
+
+    function renderCampaigns() {
+      const head = document.getElementById("campaignHead");
+      const body = document.getElementById("campaignBody");
+      const columns = ["Campaign Name", "Owner", "Created", "Active Time", "Idle Time", "Completion", "Status"];
+      head.innerHTML = `<tr>${columns.map((col) => `<th>${col}</th>`).join("")}</tr>`;
+      body.innerHTML = campaigns.map((row) => `
+        <tr class="clickable-row" data-campaign-id="${row.CampaignGroupId}">
+          <td><strong>${row.CampaignName}</strong><br><span class="muted">${row.CampaignGroupId}</span></td>
+          <td>${row.CampaignOwner}</td>
+          <td>${row.CampaignCreated}</td>
+          <td>${row.TotalActiveTime}</td>
+          <td>${row.TotalIdleTime}</td>
+          <td>${row.Completion}</td>
+          <td><span class="pill ${row.Risk}">${riskLabel(row.Risk)}</span></td>
+        </tr>
+      `).join("");
+
+      body.querySelectorAll("tr").forEach((row) => {
+        row.addEventListener("click", () => openCampaign(row.dataset.campaignId));
+      });
+    }
+
+    function renderUserTable(rows) {
+      const head = document.getElementById("userHead");
+      const body = document.getElementById("userBody");
+      const columns = ["Certificate ID", "Certificate Name", "User Name", "Certifier Name", "Action Taken", "Active Time", "Idle Time", "Total Time", "Segment Count", "Finished", "Completion"];
+      head.innerHTML = `<tr>${columns.map((col) => `<th>${col}</th>`).join("")}</tr>`;
+      body.innerHTML = rows.map((row) => `
+        <tr class="clickable-row" data-user-name="${row.UserName}">
+          <td>${row.CertificateId}</td>
+          <td>${row.CertificateName}</td>
+          <td><strong>${row.UserName}</strong></td>
+          <td>${row.CertifierName}</td>
+          <td>${row.ActionTaken}</td>
+          <td>${row.ActiveTime}</td>
+          <td>${row.IdleTime}</td>
+          <td>${row.TotalTime}</td>
+          <td>${row.SegmentCount}</td>
+          <td>${row.Finished}</td>
+          <td>${row.Completion}</td>
+        </tr>
+      `).join("");
+
+      body.querySelectorAll("tr").forEach((row) => {
+        row.addEventListener("click", () => openSession(row.dataset.userName));
+      });
+    }
+
+    function renderSessionSummary(summary) {
+      const container = document.getElementById("sessionSummary");
+      container.innerHTML = Object.entries(summary).map(([key, value]) => `
+        <div class="k-card">
+          <div class="k-label">${key.replace(/([A-Z])/g, " $1").trim()}</div>
+          <div class="k-value">${value}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderSessionTable(rows) {
+      const head = document.getElementById("sessionHead");
+      const body = document.getElementById("sessionBody");
+      const columns = ["Session ID", "Start Time", "End Time", "Duration", "Event Count", "Page"];
+      head.innerHTML = `<tr>${columns.map((col) => `<th>${col}</th>`).join("")}</tr>`;
+      body.innerHTML = rows.map((row) => `
+        <tr>
+          <td>${row.SessionId}</td>
+          <td>${row.StartTime}</td>
+          <td>${row.EndTime}</td>
+          <td>${row.Duration}</td>
+          <td>${row.EventCount}</td>
+          <td>${row.Page}</td>
+        </tr>
+      `).join("");
+    }
+
+    function openCampaign(campaignId) {
+      const campaign = campaigns.find((item) => item.CampaignGroupId === campaignId);
+      const rows = usersByCampaign[campaignId] || usersByCampaign.default;
+      document.getElementById("userMeta").textContent = `${campaign.CampaignName} | ${rows.length} sample user row(s)`;
+      renderUserTable(rows);
+      showPage("user");
+    }
+
+    function openSession(userName) {
+      const sessionData = sessionsByUser[userName] || sessionsByUser.default;
+      renderSessionSummary(sessionData.summary);
+      renderSessionTable(sessionData.rows);
+      showPage("session");
+    }
+
+    function showPage(name) {
+      const pages = {
+        leadership: "leadershipPage",
+        leadershipDetail: "leadershipDetailPage",
+        operational: "operationalPage",
+        user: "userPage",
+        session: "sessionPage"
+      };
+
+      document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
+      document.getElementById(pages[name]).classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("theme-dark");
+      const dark = document.body.classList.contains("theme-dark");
+      document.getElementById("themeLabel").textContent = dark ? "Dark" : "Light";
+      localStorage.setItem("cert-summary-demo-theme", dark ? "dark" : "light");
+    }
+
+    document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+    document.querySelectorAll("[data-nav]").forEach((button) => {
+      button.addEventListener("click", () => showPage(button.dataset.nav));
+    });
+    document.querySelector("[data-back-user]").addEventListener("click", () => showPage("user"));
+    document.getElementById("applyMetric").addEventListener("click", () => openMetric(metricSelect.value));
+    document.getElementById("downloadMetric").addEventListener("click", () => {
+      alert("Demo mode: this button represents the CSV export available in the live plugin.");
+    });
+    metricSelect.addEventListener("change", () => openMetric(metricSelect.value));
+
+    leadershipCards.forEach((metric) => {
+      const option = document.createElement("option");
+      option.value = metric.key;
+      option.textContent = metric.title;
+      metricSelect.appendChild(option);
+    });
+
+    document.getElementById("createdFrom").value = isoDate(-90);
+    document.getElementById("createdTo").value = isoDate(0);
+    metricFrom.value = isoDate(-180);
+    metricTo.value = isoDate(0);
+
+    if (localStorage.getItem("cert-summary-demo-theme") === "dark") {
+      document.body.classList.add("theme-dark");
+      document.getElementById("themeLabel").textContent = "Dark";
+    }
+
+    renderLeadershipCards();
+    renderCampaigns();
+    openMetric(leadershipCards[0].key);
+    showPage("leadership");
+  </script>
 </body>
 </html>
