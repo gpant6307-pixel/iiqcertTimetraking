@@ -52,9 +52,9 @@
 </head>
 <body>
   <header class="top-brand"><div class="brand-mark"><span class="brand-ring"></span><span>SailPoint</span></div></header>
-  <nav class="iiq-nav">
-    <div class="nav-left"><span class="hamburger">☰</span><div class="nav-links"><span>Home</span><span>My Work ▼</span><span>Identities ▼</span><span>Applications ▼</span><span>Intelligence ▼</span><span>Setup ▼</span></div></div>
-    <div class="nav-right"><span>⚙ ▼</span><span>❔</span><span>🔔</span><span class="badge">3</span><span>spadmin ▼</span></div>
+    <nav class="iiq-nav">
+    <div class="nav-left"><span class="hamburger">&#9776;</span><div class="nav-links"><span>Home</span><span>My Work &#9662;</span><span>Identities &#9662;</span><span>Applications &#9662;</span><span>Intelligence &#9662;</span><span>Setup &#9662;</span></div></div>
+    <div class="nav-right"><span>&#9881; &#9662;</span><span>?</span><span>&#128276;</span><span class="badge">3</span><span>spadmin &#9662;</span></div>
   </nav>
   <main class="app-shell">
     <div class="container">
@@ -68,7 +68,7 @@
 
       <section id="leadershipDetailPage" class="page">
         <div class="page-top">
-          <div><button class="back-link" id="backToLeadership" type="button">← Back to Leadership</button><h1 class="detail-title" id="detailTitle">Metric Name</h1><p class="subtitle">Date range defaults to last 6 months. Use pagination to navigate all rows.</p></div>
+          <div><button class="back-link" id="backToLeadership" type="button">&larr; Back to Leadership</button><h1 class="detail-title" id="detailTitle">Metric Name</h1><p class="subtitle">Date range defaults to last 6 months. Use pagination to navigate all rows.</p></div>
           <div class="toolbar-right"><div class="theme-wrap"><span>Light</span><button class="theme-switch" type="button" aria-label="Theme preview"></button></div></div>
         </div>
         <div class="canvas">
@@ -102,7 +102,7 @@
 
       <section id="campaignResultsPage" class="page">
         <div class="page-top">
-          <div><button class="back-link" id="backToSearch" type="button">← Back to Search</button><h1 class="detail-title">Campaign Results</h1><p class="results-subtitle">6 campaign(s)</p></div>
+          <div><button class="back-link" id="backToSearch" type="button">&larr; Back to Search</button><h1 class="detail-title">Campaign Results</h1><p class="results-subtitle">6 campaign(s)</p></div>
           <div class="toolbar-right"><div class="theme-wrap"><span>Light</span><button class="theme-switch" type="button" aria-label="Theme preview"></button></div></div>
         </div>
         <div class="canvas">
@@ -111,7 +111,7 @@
         </div>
       </section>
     </div>
-    <div class="footer">© Copyright 2021 SailPoint Technologies - All rights reserved.</div>
+    <div class="footer">&copy; Copyright 2021 SailPoint Technologies - All rights reserved.</div>
   </main>
 
   <script>
@@ -279,10 +279,10 @@
 
     document.getElementById("tab-certifier").innerHTML = `
       <div class="search-row">
-        <div class="field"><label>SEARCH CERTIFIER (ADMIN)</label><input type="text" value="Type name or email"></div>
-        <button class="secondary-btn" type="button">Search</button>
+        <div class="field"><label>SEARCH CERTIFIER (ADMIN)</label><input id="certifierSearchInput" type="text" placeholder="Type name or email" value="John"></div>
+        <button class="secondary-btn" id="certifierSearchBtn" type="button">Search</button>
       </div>
-      <div class="field"><label>SELECT CERTIFIER</label><select><option>Select</option></select></div>
+      <div class="field"><label>SELECT CERTIFIER</label><select id="certifierSelect"><option value="">Select</option></select></div>
     `;
 
     document.getElementById("goOperational").addEventListener("click", () => showPage("operational"));
@@ -301,6 +301,23 @@
         document.getElementById(`tab-${tab.dataset.tab}`).classList.add("active");
       });
     });
+
+    const certifierSearchInput = document.getElementById("certifierSearchInput");
+    const certifierSearchBtn = document.getElementById("certifierSearchBtn");
+    const certifierSelect = document.getElementById("certifierSelect");
+
+    function searchCertifierDemo() {
+      const term = (certifierSearchInput.value || "").trim().toLowerCase();
+      certifierSelect.innerHTML = '<option value="">Select</option>';
+      if (!term) return;
+      if (term.includes("john")) {
+        certifierSelect.innerHTML += '<option value="john.watson" selected>John Watson (john.watson@example.com)</option>';
+      } else {
+        certifierSelect.innerHTML += '<option value="">No matching certifier found</option>';
+      }
+    }
+
+    certifierSearchBtn.addEventListener("click", searchCertifierDemo);
 
     function applyTheme(theme) {
       const dark = theme === "dark";
@@ -333,3 +350,4 @@
   </script>
 </body>
 </html>
+
